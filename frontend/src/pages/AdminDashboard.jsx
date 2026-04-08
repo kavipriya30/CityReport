@@ -14,10 +14,10 @@ const AdminDashboard = () => {
   });
   const [filterStatus, setFilterStatus] = useState('all');
 
-  // ✅ FIX: removed setSelectedImage
-  const [selectedImage] = useState(null);
-
+  // ✅ FIXED: allow updating image
+  const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
     try {
       const response = await fetch(`${API_URL}/api/issues/all`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         }
       });
 
@@ -60,7 +60,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Fetch Error:", error);
-      alert("Server error. Please check backend connection.");
+      alert("Server error. Please check backend.");
     }
   };
 
@@ -74,7 +74,7 @@ const AdminDashboard = () => {
   };
 
   const handleStatusChange = async (issueId, newStatus) => {
-    const solution = prompt("Enter solution description (optional):") || "";
+    const solution = prompt("Enter solution (optional):") || "";
     const estimatedDate =
       newStatus === "in-progress"
         ? prompt("Estimated date (YYYY-MM-DD):") || ""
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({
             status: newStatus,
@@ -96,10 +96,6 @@ const AdminDashboard = () => {
           })
         }
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to update status");
-      }
 
       const data = await response.json();
 
@@ -187,8 +183,22 @@ const AdminDashboard = () => {
                 <tbody>
                   {filteredIssues.map(issue => (
                     <tr key={issue._id} className="border-b hover:bg-gray-50">
+
                       <td className="px-4 py-3 capitalize">{issue.issueType}</td>
-                      <td className="px-4 py-3 max-w-xs truncate">{issue.description}</td>
+
+                      {/* ✅ Click to view image */}
+                      <td
+                        className="px-4 py-3 max-w-xs truncate cursor-pointer text-blue-600"
+                        onClick={() => {
+                          if (issue.image) {
+                            setSelectedImage(issue.image);
+                            setIsModalOpen(true);
+                          }
+                        }}
+                      >
+                        {issue.description}
+                      </td>
+
                       <td className="px-4 py-3">{issue.location}</td>
 
                       <td className="px-4 py-3">
@@ -208,6 +218,7 @@ const AdminDashboard = () => {
                       <td className="px-4 py-3 text-sm">
                         {new Date(issue.createdAt).toLocaleDateString()}
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -223,15 +234,16 @@ const AdminDashboard = () => {
           title="Issue Image"
         >
           {selectedImage && (
-            <img src={selectedImage} alt="Issue" className="w-full" />
+            <img src={selectedImage} alt="Issue" className="w-full rounded" />
           )}
         </Modal>
+
       </div>
     </div>
   );
 };
 
-/* ✅ FIXED Tailwind issue */
+/* ✅ Tailwind-safe colors */
 const StatCard = ({ title, value, color }) => {
   const colors = {
     blue: "border-blue-500 text-blue-600",
