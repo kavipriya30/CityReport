@@ -13,7 +13,10 @@ const AdminDashboard = () => {
     resolved: 0
   });
   const [filterStatus, setFilterStatus] = useState('all');
-  const [selectedImage, setSelectedImage] = useState(null);
+
+  // ✅ FIX: removed setSelectedImage
+  const [selectedImage] = useState(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -184,17 +187,9 @@ const AdminDashboard = () => {
                 <tbody>
                   {filteredIssues.map(issue => (
                     <tr key={issue._id} className="border-b hover:bg-gray-50">
-                      <td className="px-4 py-3 capitalize">
-                        {issue.issueType}
-                      </td>
-
-                      <td className="px-4 py-3 max-w-xs truncate">
-                        {issue.description}
-                      </td>
-
-                      <td className="px-4 py-3">
-                        {issue.location}
-                      </td>
+                      <td className="px-4 py-3 capitalize">{issue.issueType}</td>
+                      <td className="px-4 py-3 max-w-xs truncate">{issue.description}</td>
+                      <td className="px-4 py-3">{issue.location}</td>
 
                       <td className="px-4 py-3">
                         <select
@@ -221,7 +216,7 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        {/* Image Modal */}
+        {/* Modal */}
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -236,14 +231,23 @@ const AdminDashboard = () => {
   );
 };
 
-/* Small reusable stat card */
-const StatCard = ({ title, value, color }) => (
-  <div className={`bg-white rounded-lg shadow-md p-6 border-l-4 border-${color}-500`}>
-    <h3 className="text-lg font-semibold text-gray-600">{title}</h3>
-    <p className={`text-3xl font-bold text-${color}-600`}>
-      {value}
-    </p>
-  </div>
-);
+/* ✅ FIXED Tailwind issue */
+const StatCard = ({ title, value, color }) => {
+  const colors = {
+    blue: "border-blue-500 text-blue-600",
+    red: "border-red-500 text-red-600",
+    yellow: "border-yellow-500 text-yellow-600",
+    green: "border-green-500 text-green-600"
+  };
+
+  return (
+    <div className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${colors[color]}`}>
+      <h3 className="text-lg font-semibold text-gray-600">{title}</h3>
+      <p className={`text-3xl font-bold ${colors[color]}`}>
+        {value}
+      </p>
+    </div>
+  );
+};
 
 export default AdminDashboard;
